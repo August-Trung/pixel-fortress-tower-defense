@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@300;400;500;700&display=swap');
+
+:root {
+  --font-game: 'Press Start 2P', monospace;
+  --font-ui: 'Outfit', sans-serif;
+  
+  --color-bg: #0b0c10;
+  --color-surface: #1f2833;
+  --color-primary: #ff6b35; /* Archer / Main color */
+  --color-secondary: #4ecdc4; /* Ice / Secondary */
+  --color-accent: #9c27b0; /* Mage purple */
+  --color-text: #c5c6c7;
+  --color-text-bright: #ffffff;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  overflow-x: hidden;
+  image-rendering: pixelated;
+  user-select: none;
+}
+
+/* Pixel Font Utility */
+.font-game {
+  font-family: var(--font-game);
+  line-height: 1.5;
+}
+
+/* Retro Pixel Borders */
+.pixel-border-double {
+  border: 4px double #ffffff;
+}
+
+.pixel-card {
+  background: rgba(31, 40, 51, 0.85);
+  border: 4px solid #1a1a1a;
+  box-shadow: 
+    0 -4px 0 -2px #1a1a1a, 
+    0 4px 0 -2px #1a1a1a, 
+    -4px 0 0 -2px #1a1a1a, 
+    4px 0 0 -2px #1a1a1a,
+    inset 0 0 0 2px rgba(255, 255, 255, 0.05),
+    0 10px 20px rgba(0,0,0,0.5);
+  position: relative;
+  backdrop-filter: blur(8px);
+}
+
+/* Retro Pixel Button style */
+.pixel-btn {
+  font-family: var(--font-game);
+  font-size: 10px;
+  color: #fff !important;
+  background-color: var(--color-primary);
+  border: 3px solid #000;
+  box-shadow: 
+    0 -3px 0 -1px #000, 
+    0 3px 0 -1px #000, 
+    -3px 0 0 -1px #000, 
+    3px 0 0 -1px #000,
+    0 5px 0 #000;
+  position: relative;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+
+.pixel-btn:hover {
+  background-color: #ff8552;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 -3px 0 -1px #000, 
+    0 3px 0 -1px #000, 
+    -3px 0 0 -1px #000, 
+    3px 0 0 -1px #000,
+    0 7px 0 #000;
+}
+
+.pixel-btn:active {
+  transform: translateY(3px);
+  box-shadow: 
+    0 -3px 0 -1px #000, 
+    0 3px 0 -1px #000, 
+    -3px 0 0 -1px #000, 
+    3px 0 0 -1px #000,
+    0 2px 0 #000;
+}
+
+.pixel-btn.secondary {
+  background-color: var(--color-secondary);
+}
+.pixel-btn.secondary:hover {
+  background-color: #66e0d8;
+}
+
+.pixel-btn.accent {
+  background-color: var(--color-accent);
+}
+.pixel-btn.accent:hover {
+  background-color: #b053c0;
+}
+
+.pixel-btn.danger {
+  background-color: #d32f2f;
+}
+.pixel-btn.danger:hover {
+  background-color: #f44336;
+}
+
+.pixel-btn.disabled, .pixel-btn:disabled {
+  background-color: #555555 !important;
+  color: #888888 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: 
+    0 -3px 0 -1px #000, 
+    0 3px 0 -1px #000, 
+    -3px 0 0 -1px #000, 
+    3px 0 0 -1px #000,
+    0 5px 0 #000 !important;
+}
+
+/* Animations */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.blink {
+  animation: blink 1s infinite;
+}
+
+/* Custom Scrollbar for list container */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border: 2px solid #111;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
