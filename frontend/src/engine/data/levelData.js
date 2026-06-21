@@ -1,0 +1,100 @@
+import { TILE_SIZE } from './mapData.js';
+
+export const LEVEL_DATA = [
+  {
+    id: 1,
+    name: "Whispering Grasslands",
+    difficulty: "Easy",
+    description: "A peaceful valley of lush green grass. Skeletons and wolves are scouting the road. Standard wave counts.",
+    theme: "grasslands",
+    goldBonus: 0,
+    hpBonus: 0,
+    initialGold: 200,
+    mapGrid: [
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 3],
+      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+      [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ],
+    pathWaypoints: [
+      { x: 0,                                 y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 4 * TILE_SIZE + TILE_SIZE / 2,     y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 4 * TILE_SIZE + TILE_SIZE / 2,     y: 5 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 15 * TILE_SIZE + TILE_SIZE / 2,    y: 5 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 15 * TILE_SIZE + TILE_SIZE / 2,    y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 20 * TILE_SIZE,                    y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+    ]
+  },
+  {
+    id: 2,
+    name: "Desert Oasis",
+    difficulty: "Medium",
+    description: "A scorching sandy plain surrounded by cacti. Double-loops make it harder to defend, and wolf packs move at extreme speeds.",
+    theme: "desert",
+    goldBonus: 50,
+    hpBonus: 0,
+    initialGold: 250,
+    mapGrid: [
+      [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+      [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0],
+    ],
+    pathWaypoints: [
+      { x: 2 * TILE_SIZE + TILE_SIZE / 2,    y: 0 },
+      { x: 2 * TILE_SIZE + TILE_SIZE / 2,    y: 8 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 10 * TILE_SIZE + TILE_SIZE / 2,   y: 8 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 10 * TILE_SIZE + TILE_SIZE / 2,   y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 17 * TILE_SIZE + TILE_SIZE / 2,   y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 17 * TILE_SIZE + TILE_SIZE / 2,   y: 12 * TILE_SIZE }
+    ]
+  },
+  {
+    id: 3,
+    name: "Frozen Wasteland",
+    difficulty: "Hard",
+    description: "An ice-bound frozen peak covered in snow crystals. A long serpentine winding path. Orcs are armored and a giant Dragon boss awaits.",
+    theme: "frozen",
+    goldBonus: 100,
+    hpBonus: 5,
+    initialGold: 300,
+    mapGrid: [
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3],
+      [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ],
+    pathWaypoints: [
+      { x: 0,                                y: 10 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 17 * TILE_SIZE + TILE_SIZE / 2,   y: 10 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 17 * TILE_SIZE + TILE_SIZE / 2,   y: 6 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 2 * TILE_SIZE + TILE_SIZE / 2,    y: 6 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 2 * TILE_SIZE + TILE_SIZE / 2,    y: 2 * TILE_SIZE + TILE_SIZE / 2 },
+      { x: 20 * TILE_SIZE,                   y: 2 * TILE_SIZE + TILE_SIZE / 2 }
+    ]
+  }
+];

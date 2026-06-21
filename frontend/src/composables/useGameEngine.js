@@ -11,7 +11,7 @@ export function useGameEngine() {
       engine.stop();
     }
 
-    engine = new GameEngine(canvas, {
+    engine = new GameEngine(canvas, gameStore.selectedLevel, {
       onStateChange: (state) => {
         gameStore.updateFromEngine(state);
       },

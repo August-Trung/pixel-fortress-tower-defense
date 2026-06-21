@@ -1,3 +1,4 @@
+import { LEVEL_DATA } from '../engine/data/levelData.js';
 import { ref, computed } from 'vue'; // Standard imports
 import { defineStore } from 'pinia';
 
@@ -5,6 +6,9 @@ export const useGameStore = defineStore('game', () => {
   // Player state
   const playerName = ref('');
   const playerId = ref(null);
+
+  // Selected level
+  const selectedLevel = ref(1);
 
   // Game state (synced from engine)
   const gold = ref(200);
@@ -66,14 +70,15 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function resetGame() {
-    gold.value = 200;
-    hp.value = 20;
+    const level = LEVEL_DATA.find(l => l.id === selectedLevel.value) || LEVEL_DATA[0];
+    gold.value = level.initialGold;
+    hp.value = 20 + level.hpBonus;
     currentWave.value = 0;
     waveActive.value = false;
     gameSpeed.value = 1;
     gameStatus.value = 'idle';
     enemiesKilled.value = 0;
-    totalGoldEarned.value = 200;
+    totalGoldEarned.value = level.initialGold;
     timePlayed.value = 0;
     selectedTower.value = null;
     placingTowerType.value = null;
@@ -93,6 +98,7 @@ export const useGameStore = defineStore('game', () => {
   return {
     playerName,
     playerId,
+    selectedLevel,
     gold,
     hp,
     currentWave,

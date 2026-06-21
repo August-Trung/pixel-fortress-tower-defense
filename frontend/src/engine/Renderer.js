@@ -15,7 +15,12 @@ export default class Renderer {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
   }
 
-  drawMap(mapGrid) {
+  drawMap(mapGrid, theme = 'grasslands') {
+    const isDesert = theme === 'desert';
+    const isFrozen = theme === 'frozen';
+    const grassSprite = isDesert ? 'grass_desert' : isFrozen ? 'grass_frozen' : 'grass';
+    const pathSprite = isDesert ? 'path_desert' : isFrozen ? 'path_frozen' : 'path';
+
     for (let row = 0; row < MAP_ROWS; row++) {
       for (let col = 0; col < MAP_COLS; col++) {
         const tile = mapGrid[row][col];
@@ -23,9 +28,18 @@ export default class Renderer {
         const y = row * TILE_SIZE;
 
         if (tile === 0) {
-          this.drawSprite('grass', x, y);
+          this.drawSprite(grassSprite, x, y);
+          
+          // Draw deterministic decorations on grass/sand/snow (density ~15%)
+          const seed = (col * 17 + row * 31) % 100;
+          if (seed < 15) {
+            this.drawDecoration(theme, seed, x, y);
+          }
         } else if (tile === 1 || tile === 2) {
-          this.drawSprite('path', x, y);
+          this.drawSprite(pathSprite, x, y);
+          
+          // Draw path gravel edges for production polish
+          this.drawPathBorders(mapGrid, col, row, x, y, theme);
         } else if (tile === 3) {
           this.drawSprite('castle', x, y);
         }
@@ -33,11 +47,86 @@ export default class Renderer {
     }
   }
 
+  drawDecoration(theme, seed, x, y) {
+    let spriteName = null;
+    if (theme === 'grasslands') {
+      if (seed < 4) spriteName = 'decor_flower_red';
+      else if (seed < 8) spriteName = 'decor_flower_yellow';
+      else if (seed < 11) spriteName = 'decor_stump';
+      else spriteName = 'decor_stone';
+    } else if (theme === 'desert') {
+      if (seed < 7) spriteName = 'decor_cactus';
+      else spriteName = 'decor_desert_stone';
+    } else if (theme === 'frozen') {
+      if (seed < 7) spriteName = 'decor_crystal';
+      else spriteName = 'decor_snow_stone';
+    }
+
+    if (spriteName) {
+      const img = this.sprites[spriteName];
+      if (img) {
+        this.ctx.imageSmoothingEnabled = false;
+        // Draw slightly smaller decoration centered in the tile
+        const size = TILE_SIZE * 0.7;
+        const offset = (TILE_SIZE - size) / 2;
+        this.ctx.drawImage(img, x + offset, y + offset, size, size);
+      }
+    }
+  }
+
+  drawPathBorders(mapGrid, col, row, x, y, theme) {
+    this.ctx.strokeStyle = theme === 'desert' ? '#A1887F' : theme === 'frozen' ? '#B0BEC5' : '#8D6E63';
+    this.ctx.lineWidth = 1.5;
+    
+    // Check neighbors
+    if (row > 0 && mapGrid[row - 1][col] === 0) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(x, y);
+      this.ctx.lineTo(x + TILE_SIZE, y);
+      this.ctx.stroke();
+    }
+    if (row < MAP_ROWS - 1 && mapGrid[row + 1][col] === 0) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(x, y + TILE_SIZE);
+      this.ctx.lineTo(x + TILE_SIZE, y + TILE_SIZE);
+      this.ctx.stroke();
+    }
+    if (col > 0 && mapGrid[row][col - 1] === 0) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(x, y);
+      this.ctx.lineTo(x, y + TILE_SIZE);
+      this.ctx.stroke();
+    }
+    if (col < MAP_COLS - 1 && mapGrid[row][col + 1] === 0) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(x + TILE_SIZE, y);
+      this.ctx.lineTo(x + TILE_SIZE, y + TILE_SIZE);
+      this.ctx.stroke();
+    }
+  }
+
   drawTowers(towers) {
     for (const tower of towers) {
       const x = tower.gridX * TILE_SIZE;
       const y = tower.gridY * TILE_SIZE;
-      this.drawSprite(`tower_${tower.type}`, x, y);
+      
+      // Draw static base
+      const baseImg = this.sprites['tower_base'];
+      if (baseImg) {
+        this.ctx.drawImage(baseImg, x, y, TILE_SIZE, TILE_SIZE);
+      }
+
+      // Draw rotating barrel
+      const barrelImg = this.sprites[`tower_gun_${tower.type}`];
+      if (barrelImg) {
+        this.ctx.save();
+        this.ctx.translate(x + TILE_SIZE / 2, y + TILE_SIZE / 2);
+        this.ctx.rotate(tower.angle);
+        this.ctx.drawImage(barrelImg, -TILE_SIZE / 2, -TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+        this.ctx.restore();
+      } else {
+        this.drawSprite(`tower_${tower.type}`, x, y);
+      }
 
       // Draw Level text
       this.ctx.fillStyle = '#ffffff';
@@ -55,6 +144,44 @@ export default class Renderer {
       const x = enemy.x - TILE_SIZE / 2;
       const y = enemy.y - TILE_SIZE / 2;
       this.drawSprite(`enemy_${enemy.type}`, x, y);
+
+      // Render blue freeze overlay if slowed
+      if (enemy.slowTimer > 0) {
+        this.ctx.save();
+        this.ctx.globalAlpha = 0.4;
+        this.ctx.fillStyle = '#00E5FF';
+        this.ctx.beginPath();
+        this.ctx.arc(enemy.x, enemy.y, TILE_SIZE / 2.5, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+    }
+  }
+
+  drawVfx(particles, texts) {
+    // 1. Draw particles
+    for (const p of particles) {
+      this.ctx.save();
+      this.ctx.globalAlpha = p.life / p.maxLife;
+      this.ctx.fillStyle = p.color;
+      this.ctx.beginPath();
+      this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    }
+
+    // 2. Draw floating text indicators
+    for (const t of texts) {
+      this.ctx.save();
+      this.ctx.globalAlpha = t.life / t.maxLife;
+      this.ctx.fillStyle = t.color;
+      // Retro Press Start 2P font
+      this.ctx.font = 'bold 8px "Courier New", Courier, monospace';
+      this.ctx.shadowColor = 'black';
+      this.ctx.shadowBlur = 4;
+      this.ctx.textAlign = 'center';
+      this.ctx.fillText(t.text, t.x, t.y);
+      this.ctx.restore();
     }
   }
 

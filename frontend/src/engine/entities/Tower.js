@@ -19,6 +19,7 @@ export default class Tower {
     this.cost = config.cost;
     this.totalInvested = config.cost;
     this.target = null;
+    this.angle = 0; // Turret rotation angle
   }
 
   update(dt, enemies, bullets) {
@@ -26,9 +27,15 @@ export default class Tower {
       this.fireCooldown -= dt;
     }
     this.target = this.findTarget(enemies);
-    if (this.target && this.fireCooldown <= 0) {
-      this.shoot(bullets);
-      this.fireCooldown = this.fireRate;
+    if (this.target) {
+      const dx = this.target.x - this.x;
+      const dy = this.target.y - this.y;
+      this.angle = Math.atan2(dy, dx);
+
+      if (this.fireCooldown <= 0) {
+        this.shoot(bullets);
+        this.fireCooldown = this.fireRate;
+      }
     }
   }
 
