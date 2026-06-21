@@ -131,7 +131,7 @@ export default class Renderer {
     const len = Math.sqrt(dx * dx + dy * dy);
     const ux = dx / len;
     const uy = dy / len;
-    const spikeHeight = 6;
+    const spikeHeight = 3.5; // Shorter spike height for cleaner, wider path visibility
     
     this.ctx.fillStyle = fillColor;
     this.ctx.strokeStyle = strokeColor;
@@ -144,7 +144,7 @@ export default class Renderer {
       const tMid = (i + 0.5) / numSpikes;
       const tEnd = (i + 1) / numSpikes;
       const seed = (seedOffset + i * 17) % 5;
-      const h = spikeHeight + seed - 2;
+      const h = spikeHeight + seed - 2; // variations from 1.5 to 5.5px
       const pxMid = x1 + ux * (tMid * len) + normalX * h;
       const pyMid = y1 + uy * (tMid * len) + normalY * h;
       const pxEnd = x1 + ux * (tEnd * len);
@@ -174,15 +174,15 @@ export default class Renderer {
   }
 
   drawPathBorders(mapGrid, col, row, x, y, theme) {
-    let fillColor = '#2E7D32'; // grass green fallback
-    let strokeColor = '#8D6E63'; // gravel border
+    let fillColor = '#2E7D32'; // grass green
+    let strokeColor = '#1B5E20'; // dark green border for grasslands
     
     if (theme === 'desert') {
       fillColor = '#E2C280'; // desert sand
-      strokeColor = '#A1887F';
+      strokeColor = '#5D4037'; // dark brown border for desert
     } else if (theme === 'frozen') {
       fillColor = '#E3F2FD'; // snow white-blue
-      strokeColor = '#B0BEC5';
+      strokeColor = '#37474F'; // dark grey-blue border for frozen
     }
     
     const numSpikes = 6;
