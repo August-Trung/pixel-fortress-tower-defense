@@ -134,10 +134,292 @@ export default class Renderer {
     if (img) {
       this.ctx.imageSmoothingEnabled = false;
       this.ctx.drawImage(img, x, y, TILE_SIZE, TILE_SIZE);
+      return;
+    }
+
+    // Procedural Fallbacks (Pixel Art Procedural styles)
+    if (name === 'grass') {
+      this.drawProceduralGrass(x, y);
+    } else if (name === 'path') {
+      this.drawProceduralPath(x, y);
+    } else if (name === 'castle') {
+      this.drawProceduralCastle(x, y);
+    } else if (name.includes('tower_archer')) {
+      this.drawProceduralArcherTower(x, y);
+    } else if (name.includes('tower_mage')) {
+      this.drawProceduralMageTower(x, y);
+    } else if (name.includes('tower_ice')) {
+      this.drawProceduralIceTower(x, y);
+    } else if (name.includes('enemy_skeleton')) {
+      this.drawProceduralSkeleton(x, y);
+    } else if (name.includes('enemy_wolf')) {
+      this.drawProceduralWolf(x, y);
+    } else if (name.includes('enemy_orc')) {
+      this.drawProceduralOrc(x, y);
+    } else if (name.includes('enemy_dragon')) {
+      this.drawProceduralDragon(x, y);
     } else {
       this.ctx.fillStyle = this.getFallbackColor(name);
       this.ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
     }
+  }
+
+  // --- Procedural Canvas Pixel Art Renderers ---
+
+  drawProceduralGrass(x, y) {
+    // Green base
+    this.ctx.fillStyle = '#2E7D32';
+    this.ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+
+    // Subtle dark border grid to feel like tiles
+    this.ctx.strokeStyle = '#276A2B';
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
+
+    // Dynamic grass details based on coordinates (deterministic seed)
+    const seed = (x * 7 + y * 13) % 100;
+    this.ctx.fillStyle = '#4CAF50';
+    if (seed < 30) {
+      // Grass blades
+      this.ctx.fillRect(x + 10, y + 15, 2, 4);
+      this.ctx.fillRect(x + 12, y + 13, 2, 6);
+      this.ctx.fillRect(x + 30, y + 32, 2, 5);
+    } else if (seed < 60) {
+      this.ctx.fillRect(x + 24, y + 20, 2, 5);
+      this.ctx.fillRect(x + 26, y + 22, 2, 3);
+      this.ctx.fillRect(x + 8, y + 35, 2, 4);
+    } else if (seed < 75) {
+      // Tiny medieval yellow flower
+      this.ctx.fillStyle = '#FFF9C4';
+      this.ctx.fillRect(x + 16, y + 16, 3, 3);
+      this.ctx.fillStyle = '#FBC02D';
+      this.ctx.fillRect(x + 17, y + 17, 1, 1);
+    }
+  }
+
+  drawProceduralPath(x, y) {
+    // Dirt road beige base
+    this.ctx.fillStyle = '#D7CCC8';
+    this.ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+
+    // Draw stone borders or spots
+    const seed = (x * 9 + y * 17) % 100;
+    this.ctx.fillStyle = '#BCAAA4';
+    if (seed < 35) {
+      this.ctx.fillRect(x + 6, y + 12, 4, 3);
+      this.ctx.fillRect(x + 28, y + 24, 3, 3);
+    } else if (seed < 70) {
+      this.ctx.fillRect(x + 16, y + 32, 4, 4);
+      this.ctx.fillRect(x + 32, y + 8, 3, 3);
+    }
+    
+    // Path gravel/edges
+    this.ctx.fillStyle = '#8D6E63';
+    if (x % 96 === 0) {
+      this.ctx.fillRect(x, y, 2, TILE_SIZE);
+    }
+    if (y % 96 === 0) {
+      this.ctx.fillRect(x, y, TILE_SIZE, 2);
+    }
+  }
+
+  drawProceduralCastle(x, y) {
+    // Dark brown/gray stone fort
+    this.ctx.fillStyle = '#4E342E';
+    this.ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+
+    // Castle bricks
+    this.ctx.fillStyle = '#3E2723';
+    this.ctx.fillRect(x, y, TILE_SIZE, 6);
+    this.ctx.fillRect(x + 6, y + 12, 14, 6);
+    this.ctx.fillRect(x + 26, y + 12, 16, 6);
+    this.ctx.fillRect(x + 12, y + 24, 24, 6);
+
+    // Castle gate/doorway arch
+    this.ctx.fillStyle = '#1A0C00';
+    this.ctx.fillRect(x + 10, y + 30, 28, 18);
+  }
+
+  drawProceduralArcherTower(x, y) {
+    // Wooden structural posts
+    this.ctx.fillStyle = '#5D4037';
+    this.ctx.fillRect(x + 10, y + 14, 6, 34);
+    this.ctx.fillRect(x + 32, y + 14, 6, 34);
+
+    // Cross braces
+    this.ctx.strokeStyle = '#5D4037';
+    this.ctx.lineWidth = 3;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + 12, y + 16);
+    this.ctx.lineTo(x + 36, y + 44);
+    this.ctx.moveTo(x + 36, y + 16);
+    this.ctx.lineTo(x + 12, y + 44);
+    this.ctx.stroke();
+    this.ctx.closePath();
+
+    // Wood platform deck
+    this.ctx.fillStyle = '#8D6E63';
+    this.ctx.fillRect(x + 6, y + 8, 36, 6);
+
+    // Red defensive roof
+    this.ctx.fillStyle = '#C62828';
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + 4, y + 8);
+    this.ctx.lineTo(x + 24, y);
+    this.ctx.lineTo(x + 44, y + 8);
+    this.ctx.fill();
+    this.ctx.closePath();
+
+    // Archer insignia sign
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.font = '12px Courier';
+    this.ctx.fillText('🏹', x + 16, y + 24);
+  }
+
+  drawProceduralMageTower(x, y) {
+    // Obsidian purple brick tower
+    this.ctx.fillStyle = '#4A148C';
+    this.ctx.fillRect(x + 8, y + 12, 32, 36);
+
+    // Golden runic bands
+    this.ctx.fillStyle = '#FFD54F';
+    this.ctx.fillRect(x + 6, y + 10, 36, 3);
+    this.ctx.fillRect(x + 6, y + 34, 36, 3);
+
+    // Glowing sorcerer crystal ball on top
+    this.ctx.beginPath();
+    this.ctx.arc(x + 24, y + 6, 6, 0, Math.PI * 2);
+    this.ctx.fillStyle = '#EA80FC';
+    // Shadows crystal glow
+    this.ctx.shadowColor = '#EA80FC';
+    this.ctx.shadowBlur = 8;
+    this.ctx.fill();
+    this.ctx.shadowBlur = 0; // reset
+    this.ctx.closePath();
+
+    // Mage sign
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.font = '12px Courier';
+    this.ctx.fillText('🔮', x + 16, y + 26);
+  }
+
+  drawProceduralIceTower(x, y) {
+    // Frozen cyan obelisk core
+    this.ctx.fillStyle = '#00838F';
+    this.ctx.fillRect(x + 10, y + 14, 28, 34);
+
+    // Ice crystal crown peak
+    this.ctx.fillStyle = '#00E5FF';
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + 10, y + 14);
+    this.ctx.lineTo(x + 24, y + 2);
+    this.ctx.lineTo(x + 38, y + 14);
+    this.ctx.fill();
+    this.ctx.closePath();
+
+    // Glowing core frost crystal
+    this.ctx.fillStyle = '#E0F7FA';
+    this.ctx.fillRect(x + 16, y + 20, 16, 16);
+
+    // Ice sign
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.font = '12px Courier';
+    this.ctx.fillText('❄️', x + 16, y + 30);
+  }
+
+  drawProceduralSkeleton(x, y) {
+    // White skull body
+    this.ctx.fillStyle = '#ECEFF1';
+    this.ctx.fillRect(x + 14, y + 10, 20, 18);
+    this.ctx.fillRect(x + 18, y + 28, 12, 6); // jaw
+
+    // Hollow eye sockets
+    this.ctx.fillStyle = '#1A1A1A';
+    this.ctx.fillRect(x + 17, y + 16, 4, 4);
+    this.ctx.fillRect(x + 27, y + 16, 4, 4);
+
+    // Glowing evil red pupils
+    this.ctx.fillStyle = '#FF1744';
+    this.ctx.fillRect(x + 18, y + 17, 2, 2);
+    this.ctx.fillRect(x + 28, y + 17, 2, 2);
+  }
+
+  drawProceduralWolf(x, y) {
+    // Dark grey wolf body
+    this.ctx.fillStyle = '#546E7A';
+    this.ctx.fillRect(x + 8, y + 12, 32, 24);
+
+    // Spiky ears
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + 8, y + 12);
+    this.ctx.lineTo(x + 13, y + 2);
+    this.ctx.lineTo(x + 18, y + 12);
+    this.ctx.moveTo(x + 30, y + 12);
+    this.ctx.lineTo(x + 35, y + 2);
+    this.ctx.lineTo(x + 40, y + 12);
+    this.ctx.fill();
+    this.ctx.closePath();
+
+    // Snout
+    this.ctx.fillStyle = '#263238';
+    this.ctx.fillRect(x + 18, y + 22, 12, 8);
+
+    // Glowing yellow eyes
+    this.ctx.fillStyle = '#FFEE58';
+    this.ctx.fillRect(x + 12, y + 16, 3, 2);
+    this.ctx.fillRect(x + 32, y + 16, 3, 2);
+  }
+
+  drawProceduralOrc(x, y) {
+    // Green massive body
+    this.ctx.fillStyle = '#2E7D32';
+    this.ctx.fillRect(x + 6, y + 10, 36, 28);
+
+    // Iron helmet plate
+    this.ctx.fillStyle = '#78909C';
+    this.ctx.fillRect(x + 4, y + 4, 40, 8);
+    this.ctx.fillRect(x + 22, y, 4, 4); // spike
+
+    // Angry red eyes
+    this.ctx.fillStyle = '#C62828';
+    this.ctx.fillRect(x + 12, y + 16, 4, 3);
+    this.ctx.fillRect(x + 32, y + 16, 4, 3);
+
+    // Fangs showing at bottom mouth
+    this.ctx.fillStyle = '#FFFFFF';
+    this.ctx.fillRect(x + 14, y + 28, 2, 4);
+    this.ctx.fillRect(x + 32, y + 28, 2, 4);
+  }
+
+  drawProceduralDragon(x, y) {
+    // Red scale dragon body
+    this.ctx.fillStyle = '#C62828';
+    this.ctx.fillRect(x + 4, y + 4, 40, 40);
+
+    // Sharp yellow horns
+    this.ctx.fillStyle = '#FFB300';
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + 8, y + 4);
+    this.ctx.lineTo(x + 2, y - 6);
+    this.ctx.lineTo(x + 14, y + 4);
+    this.ctx.moveTo(x + 32, y + 4);
+    this.ctx.lineTo(x + 38, y - 6);
+    this.ctx.lineTo(x + 40, y + 4);
+    this.ctx.fill();
+    this.ctx.closePath();
+
+    // Dark purple dragon wings
+    this.ctx.fillStyle = '#4A148C';
+    this.ctx.fillRect(x - 6, y + 14, 10, 18);
+    this.ctx.fillRect(x + 44, y + 14, 10, 18);
+
+    // Fiery yellow eyes with cat-like slit pupil
+    this.ctx.fillStyle = '#FFEB3B';
+    this.ctx.fillRect(x + 10, y + 16, 6, 6);
+    this.ctx.fillRect(x + 32, y + 16, 6, 6);
+    this.ctx.fillStyle = '#000000';
+    this.ctx.fillRect(x + 12, y + 16, 2, 6);
+    this.ctx.fillRect(x + 34, y + 16, 2, 6);
   }
 
   getBulletColor(type) {
@@ -149,16 +431,16 @@ export default class Renderer {
 
   getFallbackColor(name) {
     const colors = {
-      grass: '#2E7D32', // Deep medieval forest green
-      path: '#D7CCC8',  // Light dirt road
-      castle: '#4E342E', // Brown stone fort
-      tower_archer: '#8D6E63', // Archer brown
-      tower_mage: '#7E57C2',   // Mage purple
-      tower_ice: '#29B6F6',    // Ice blue
-      enemy_skeleton: '#ECEFF1', // Skeleton white-gray
-      enemy_wolf: '#757575',     // Wolf dark gray
-      enemy_orc: '#558B2F',      // Orc army green
-      enemy_dragon: '#C62828',   // Boss dragon deep red
+      grass: '#2E7D32',
+      path: '#D7CCC8',
+      castle: '#4E342E',
+      tower_archer: '#8D6E63',
+      tower_mage: '#7E57C2',
+      tower_ice: '#29B6F6',
+      enemy_skeleton: '#ECEFF1',
+      enemy_wolf: '#757575',
+      enemy_orc: '#558B2F',
+      enemy_dragon: '#C62828',
     };
     for (const [key, color] of Object.entries(colors)) {
       if (name.includes(key)) return color;
@@ -166,3 +448,4 @@ export default class Renderer {
     return '#FF00FF';
   }
 }
+
