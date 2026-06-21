@@ -49,59 +49,159 @@ export default class Renderer {
 
   drawDecoration(theme, seed, x, y) {
     let spriteName = null;
+    let width = TILE_SIZE * 0.7;
+    let height = TILE_SIZE * 0.7;
+    
     if (theme === 'grasslands') {
-      if (seed < 4) spriteName = 'decor_flower_red';
-      else if (seed < 8) spriteName = 'decor_flower_yellow';
-      else if (seed < 11) spriteName = 'decor_stump';
-      else spriteName = 'decor_stone';
+      if (seed < 2) {
+        spriteName = 'decor_tree_green';
+        width = TILE_SIZE;
+        height = TILE_SIZE * 1.4;
+      } else if (seed < 4) {
+        spriteName = 'decor_tree_pine';
+        width = TILE_SIZE;
+        height = TILE_SIZE * 1.4;
+      } else if (seed < 6) {
+        spriteName = 'decor_rock_large';
+        width = TILE_SIZE * 0.95;
+        height = TILE_SIZE * 0.95;
+      } else if (seed < 8) {
+        spriteName = 'decor_rock_medium';
+        width = TILE_SIZE * 0.8;
+        height = TILE_SIZE * 0.8;
+      } else if (seed < 10) {
+        spriteName = 'decor_flower_red';
+      } else if (seed < 12) {
+        spriteName = 'decor_flower_yellow';
+      } else if (seed < 13) {
+        spriteName = 'decor_stump';
+      } else {
+        spriteName = 'decor_stone';
+      }
     } else if (theme === 'desert') {
-      if (seed < 7) spriteName = 'decor_cactus';
-      else spriteName = 'decor_desert_stone';
+      if (seed < 4) {
+        spriteName = 'decor_cactus';
+        width = TILE_SIZE * 0.85;
+        height = TILE_SIZE * 1.1;
+      } else if (seed < 7) {
+        spriteName = 'decor_rock_large';
+        width = TILE_SIZE * 0.9;
+        height = TILE_SIZE * 0.9;
+      } else if (seed < 11) {
+        spriteName = 'decor_desert_stone';
+      } else {
+        spriteName = 'decor_rock_medium';
+        width = TILE_SIZE * 0.8;
+        height = TILE_SIZE * 0.8;
+      }
     } else if (theme === 'frozen') {
-      if (seed < 7) spriteName = 'decor_crystal';
-      else spriteName = 'decor_snow_stone';
+      if (seed < 3) {
+        spriteName = 'decor_tree_pine';
+        width = TILE_SIZE;
+        height = TILE_SIZE * 1.4;
+      } else if (seed < 6) {
+        spriteName = 'decor_crystal';
+      } else if (seed < 9) {
+        spriteName = 'decor_rock_large';
+        width = TILE_SIZE * 0.9;
+        height = TILE_SIZE * 0.9;
+      } else if (seed < 12) {
+        spriteName = 'decor_snow_stone';
+      } else {
+        spriteName = 'decor_rock_medium';
+        width = TILE_SIZE * 0.8;
+        height = TILE_SIZE * 0.8;
+      }
     }
 
     if (spriteName) {
       const img = this.sprites[spriteName];
       if (img) {
         this.ctx.imageSmoothingEnabled = false;
-        // Draw slightly smaller decoration centered in the tile
-        const size = TILE_SIZE * 0.7;
-        const offset = (TILE_SIZE - size) / 2;
-        this.ctx.drawImage(img, x + offset, y + offset, size, size);
+        const xOffset = (TILE_SIZE - width) / 2;
+        const yOffset = TILE_SIZE - height;
+        this.ctx.drawImage(img, x + xOffset, y + yOffset, width, height);
       }
     }
   }
 
-  drawPathBorders(mapGrid, col, row, x, y, theme) {
-    this.ctx.strokeStyle = theme === 'desert' ? '#A1887F' : theme === 'frozen' ? '#B0BEC5' : '#8D6E63';
+  drawJaggedEdge(x1, y1, x2, y2, normalX, normalY, numSpikes, seedOffset, fillColor, strokeColor) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const ux = dx / len;
+    const uy = dy / len;
+    const spikeHeight = 6;
+    
+    this.ctx.fillStyle = fillColor;
+    this.ctx.strokeStyle = strokeColor;
     this.ctx.lineWidth = 1.5;
     
-    // Check neighbors
+    // 1. Fill the jagged path area extending from the straight tile boundary line
+    this.ctx.beginPath();
+    this.ctx.moveTo(x1, y1);
+    for (let i = 0; i < numSpikes; i++) {
+      const tMid = (i + 0.5) / numSpikes;
+      const tEnd = (i + 1) / numSpikes;
+      const seed = (seedOffset + i * 17) % 5;
+      const h = spikeHeight + seed - 2;
+      const pxMid = x1 + ux * (tMid * len) + normalX * h;
+      const pyMid = y1 + uy * (tMid * len) + normalY * h;
+      const pxEnd = x1 + ux * (tEnd * len);
+      const pyEnd = y1 + uy * (tEnd * len);
+      this.ctx.lineTo(pxMid, pyMid);
+      this.ctx.lineTo(pxEnd, pyEnd);
+    }
+    this.ctx.closePath();
+    this.ctx.fill();
+    
+    // 2. Stroke ONLY the jagged boundary line for rich pixel aesthetic
+    this.ctx.beginPath();
+    this.ctx.moveTo(x1, y1);
+    for (let i = 0; i < numSpikes; i++) {
+      const tMid = (i + 0.5) / numSpikes;
+      const tEnd = (i + 1) / numSpikes;
+      const seed = (seedOffset + i * 17) % 5;
+      const h = spikeHeight + seed - 2;
+      const pxMid = x1 + ux * (tMid * len) + normalX * h;
+      const pyMid = y1 + uy * (tMid * len) + normalY * h;
+      const pxEnd = x1 + ux * (tEnd * len);
+      const pyEnd = y1 + uy * (tEnd * len);
+      this.ctx.lineTo(pxMid, pyMid);
+      this.ctx.lineTo(pxEnd, pyEnd);
+    }
+    this.ctx.stroke();
+  }
+
+  drawPathBorders(mapGrid, col, row, x, y, theme) {
+    let fillColor = '#2E7D32'; // grass green fallback
+    let strokeColor = '#8D6E63'; // gravel border
+    
+    if (theme === 'desert') {
+      fillColor = '#E2C280'; // desert sand
+      strokeColor = '#A1887F';
+    } else if (theme === 'frozen') {
+      fillColor = '#E3F2FD'; // snow white-blue
+      strokeColor = '#B0BEC5';
+    }
+    
+    const numSpikes = 6;
+    
+    // Top border (grass above, spikes point down)
     if (row > 0 && mapGrid[row - 1][col] === 0) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x, y);
-      this.ctx.lineTo(x + TILE_SIZE, y);
-      this.ctx.stroke();
+      this.drawJaggedEdge(x, y, x + TILE_SIZE, y, 0, 1, numSpikes, col * 7 + row * 13, fillColor, strokeColor);
     }
+    // Bottom border (grass below, spikes point up)
     if (row < MAP_ROWS - 1 && mapGrid[row + 1][col] === 0) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x, y + TILE_SIZE);
-      this.ctx.lineTo(x + TILE_SIZE, y + TILE_SIZE);
-      this.ctx.stroke();
+      this.drawJaggedEdge(x, y + TILE_SIZE, x + TILE_SIZE, y + TILE_SIZE, 0, -1, numSpikes, col * 11 + row * 7, fillColor, strokeColor);
     }
+    // Left border (grass to left, spikes point right)
     if (col > 0 && mapGrid[row][col - 1] === 0) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x, y);
-      this.ctx.lineTo(x, y + TILE_SIZE);
-      this.ctx.stroke();
+      this.drawJaggedEdge(x, y, x, y + TILE_SIZE, 1, 0, numSpikes, col * 13 + row * 17, fillColor, strokeColor);
     }
+    // Right border (grass to right, spikes point left)
     if (col < MAP_COLS - 1 && mapGrid[row][col + 1] === 0) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x + TILE_SIZE, y);
-      this.ctx.lineTo(x + TILE_SIZE, y + TILE_SIZE);
-      this.ctx.stroke();
+      this.drawJaggedEdge(x + TILE_SIZE, y, x + TILE_SIZE, y + TILE_SIZE, -1, 0, numSpikes, col * 17 + row * 11, fillColor, strokeColor);
     }
   }
 
@@ -139,22 +239,62 @@ export default class Renderer {
   }
 
   drawEnemies(enemies) {
+    const time = performance.now() * 0.005;
     for (const enemy of enemies) {
       if (!enemy.alive) continue;
-      const x = enemy.x - TILE_SIZE / 2;
-      const y = enemy.y - TILE_SIZE / 2;
-      this.drawSprite(`enemy_${enemy.type}`, x, y);
 
-      // Render blue freeze overlay if slowed
+      this.ctx.save();
+      // Translate to enemy's center for proper rotation/scaling
+      this.ctx.translate(enemy.x, enemy.y);
+
+      let wobbleAngle = 0;
+      let bobY = 0;
+      let scaleX = 1;
+      let scaleY = 1;
+
+      // Adjust wobble frequencies and amplitudes based on enemy speed/type
+      const speedFactor = (enemy.speed / 1.5) || 1.0;
+      const walkCycle = time * speedFactor * 2.0;
+
+      if (enemy.type === 'dragon') {
+        // Smooth flying bobbing movement
+        bobY = Math.sin(walkCycle) * 3;
+        wobbleAngle = Math.cos(walkCycle) * 0.05;
+      } else if (enemy.type === 'wolf') {
+        // Fast runner squash/stretch wobble
+        wobbleAngle = Math.sin(walkCycle * 1.5) * 0.12;
+        bobY = Math.abs(Math.sin(walkCycle * 1.5)) * -2;
+        scaleX = 1.05 + Math.sin(walkCycle * 1.5) * 0.05;
+      } else if (enemy.type === 'orc') {
+        // Heavy, lumbering step
+        wobbleAngle = Math.sin(walkCycle * 0.8) * 0.08;
+        bobY = Math.abs(Math.sin(walkCycle * 0.8)) * -1.5;
+        scaleY = 1.0 + Math.sin(walkCycle * 0.8) * 0.05;
+      } else {
+        // Skeleton or default walk bob
+        wobbleAngle = Math.sin(walkCycle) * 0.1;
+        bobY = Math.abs(Math.sin(walkCycle)) * -2;
+      }
+
+      this.ctx.rotate(wobbleAngle);
+      this.ctx.scale(scaleX, scaleY);
+      this.ctx.translate(0, bobY);
+
+      // Draw the sprite centered at (0, 0)
+      this.drawSprite(`enemy_${enemy.type}`, -TILE_SIZE / 2, -TILE_SIZE / 2);
+
+      // Render blue freeze overlay if slowed (still centered)
       if (enemy.slowTimer > 0) {
         this.ctx.save();
         this.ctx.globalAlpha = 0.4;
         this.ctx.fillStyle = '#00E5FF';
         this.ctx.beginPath();
-        this.ctx.arc(enemy.x, enemy.y, TILE_SIZE / 2.5, 0, Math.PI * 2);
+        this.ctx.arc(0, 0, TILE_SIZE / 2.5, 0, Math.PI * 2);
         this.ctx.fill();
         this.ctx.restore();
       }
+
+      this.ctx.restore();
     }
   }
 
