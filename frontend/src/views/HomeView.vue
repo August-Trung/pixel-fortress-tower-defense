@@ -20,26 +20,47 @@
             <div v-if="errorMsg" class="error-msg text-red font-game mt-2">{{ errorMsg }}</div>
           </div>
 
-          <!-- Level Selection -->
-          <div class="level-select-container mb-8">
-            <label class="font-game label d-block mb-4">SELECT LEVEL</label>
-            <div class="level-grid d-flex justify-space-between align-stretch gap-2">
+          <!-- Campaign Map -->
+          <div class="campaign-map-container mb-4">
+            <label class="font-game label d-block mb-2 text-center text-amber">CAMPAIGN MAP (PROGRESS: {{ gameStore.unlockedLevel }}/20)</label>
+            <div class="campaign-map border-pixel position-relative">
+              <!-- SVG path line drawing connecting nodes -->
+              <svg class="map-path-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path :d="svgPath" fill="none" stroke="#222831" stroke-width="2" stroke-dasharray="1,1" />
+                <path :d="svgPath" fill="none" stroke="#ffe082" stroke-width="0.8" />
+              </svg>
+              
+              <!-- Map nodes -->
               <div 
-                v-for="level in LEVEL_DATA" 
-                :key="level.id"
-                class="level-card flex-1 py-3 px-2 d-flex flex-column justify-space-between cursor-pointer"
-                :class="{ active: gameStore.selectedLevel === level.id }"
-                @click="gameStore.selectedLevel = level.id"
+                v-for="node in mapNodes" 
+                :key="node.id"
+                class="map-node font-game cursor-pointer d-flex align-center justify-center"
+                :class="{ 
+                  unlocked: node.isUnlocked, 
+                  completed: node.isCompleted, 
+                  active: gameStore.selectedLevel === node.id,
+                  locked: !node.isUnlocked
+                }"
+                :style="{ left: node.x + '%', top: node.y + '%' }"
+                @click="selectNode(node)"
               >
-                <div class="level-info">
-                  <h3 class="level-name mb-1">{{ level.name }}</h3>
-                  <span class="difficulty-badge" :class="level.difficulty.toLowerCase()">
-                    {{ level.difficulty }}
-                  </span>
-                </div>
-                <p class="level-desc mt-2 text-grey-lighten-1">{{ level.description }}</p>
+                <span class="node-id">{{ node.id }}</span>
+                <span v-if="!node.isUnlocked" class="lock-icon">🔒</span>
+                <span v-else-if="node.isCompleted" class="complete-flag">⭐</span>
               </div>
             </div>
+          </div>
+
+          <!-- Selected Stage Details -->
+          <div v-if="selectedNode" class="selected-level-info mb-4 py-2 px-3 text-left">
+            <div class="d-flex justify-space-between align-center">
+              <span class="lvl-title text-amber text-uppercase">{{ selectedNode.name }}</span>
+              <span class="difficulty-badge" :class="selectedNode.difficulty.toLowerCase()">
+                {{ selectedNode.difficulty }}
+              </span>
+            </div>
+            <div class="lvl-theme mt-1 text-blue">ENVIRONMENT: {{ selectedNode.theme.toUpperCase() }}</div>
+            <p class="lvl-desc mt-1 text-grey">{{ selectedNode.description }}</p>
           </div>
         </div>
         
@@ -91,7 +112,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePlayerStore } from '../stores/playerStore.js';
 import { useGameStore } from '../stores/gameStore.js';
@@ -111,6 +132,56 @@ const shopItems = [
   { key: 'startingHp', name: '🏰 RAMPART WALLS', desc: 'Castle starts with +2 max HP.', costs: [10, 20, 40] },
   { key: 'maxMana', name: '🔮 MANA ENERGY', desc: 'Spells maximum mana +15.', costs: [15, 30, 50] }
 ];
+
+// Campaign Map coordinate calculations (4 rows of 5 nodes in a zig-zag snake pattern)
+const mapNodes = computed(() => {
+  return LEVEL_DATA.map((level, idx) => {
+    const row = Math.floor(idx / 5);
+    const col = idx % 5;
+    
+    // Zig-zag coordinate order on odd rows
+    const colOrder = (row % 2 === 1) ? (4 - col) : col;
+    
+    const x = 10 + colOrder * 20; // 10%, 30%, 50%, 70%, 90%
+    const y = 12 + row * 25;     // 12%, 37%, 62%, 87%
+    
+    const isUnlocked = level.id <= gameStore.unlockedLevel;
+    const isCompleted = level.id < gameStore.unlockedLevel;
+    
+    return {
+      ...level,
+      x,
+      y,
+      isUnlocked,
+      isCompleted
+    };
+  });
+});
+
+const svgPath = computed(() => {
+  let pathStr = "";
+  mapNodes.value.forEach((node, idx) => {
+    if (idx === 0) {
+      pathStr += `M ${node.x} ${node.y}`;
+    } else {
+      pathStr += ` L ${node.x} ${node.y}`;
+    }
+  });
+  return pathStr;
+});
+
+const selectedNode = computed(() => {
+  return LEVEL_DATA.find(l => l.id === gameStore.selectedLevel) || LEVEL_DATA[0];
+});
+
+function selectNode(node) {
+  if (node.isUnlocked) {
+    gameStore.selectedLevel = node.id;
+    errorMsg.value = "";
+  } else {
+    errorMsg.value = `STAGE ${node.id} IS LOCKED! BEAT PREVIOUS STAGES TO UNLOCK.`;
+  }
+}
 
 function buyUpgrade(key, cost) {
   gameStore.buyUpgrade(key, cost);
@@ -159,11 +230,11 @@ function goRanking() {
   display: flex;
 }
 .main-wrapper {
-  max-width: 900px;
+  max-width: 980px;
   width: 95%;
 }
 .main-card {
-  flex: 1.2;
+  flex: 1.4;
   border-color: #1f2833;
   background-color: rgba(26, 35, 50, 0.95);
 }
@@ -173,7 +244,7 @@ function goRanking() {
   background-color: rgba(18, 24, 38, 0.95);
   box-shadow: 0 0 15px rgba(255, 193, 7, 0.15);
   overflow-y: auto;
-  max-height: 520px;
+  max-height: 560px;
 }
 .shop-title {
   font-size: 16px;
@@ -244,33 +315,91 @@ function goRanking() {
   font-size: 8px;
 }
 
-.level-grid {
-  display: flex;
-  gap: 12px;
+/* Campaign Map Styles */
+.campaign-map-container {
+  width: 100%;
 }
-.level-card {
-  background-color: #0b0c10;
-  border: 3px solid #333;
-  text-align: left;
+.campaign-map {
+  width: 100%;
+  height: 230px;
+  background-color: #0d1117;
+  border-color: #1f2833;
+  overflow: hidden;
+  position: relative;
+}
+.map-path-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.map-node {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3px solid #455a64;
+  background-color: #263238;
   transition: all 0.2s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  z-index: 5;
 }
-.level-card:hover {
-  border-color: #777;
-  transform: translateY(-2px);
-}
-.level-card.active {
+.map-node.unlocked {
   border-color: #ff6b35;
-  box-shadow: 0 0 10px rgba(255, 107, 53, 0.4);
+  background-color: #3e2723;
+  box-shadow: 0 0 5px rgba(255, 107, 53, 0.4);
 }
-.level-name {
-  font-family: 'Press Start 2P', monospace;
+.map-node.completed {
+  border-color: #4caf50;
+  background-color: #1b5e20;
+}
+.map-node.active {
+  border-color: #ffee58;
+  background-color: #f57f17;
+  transform: translate(-50%, -50%) scale(1.25);
+  box-shadow: 0 0 12px #ffee58;
+  z-index: 10;
+}
+.map-node.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.node-id {
   font-size: 8px;
   color: #fff;
+  pointer-events: none;
+}
+.lock-icon {
+  position: absolute;
+  font-size: 8px;
+  bottom: -10px;
+}
+.complete-flag {
+  position: absolute;
+  font-size: 8px;
+  top: -10px;
+}
+
+/* Selected level card info */
+.selected-level-info {
+  background-color: #0b0c10;
+  border: 3px solid #333;
+  border-radius: 4px;
+}
+.lvl-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+}
+.lvl-theme {
+  font-size: 8px;
+}
+.lvl-desc {
+  font-size: 8px;
   line-height: 1.4;
 }
+
 .difficulty-badge {
   font-family: 'Press Start 2P', monospace;
   font-size: 6px;
@@ -294,9 +423,9 @@ function goRanking() {
   color: #F44336;
   border: 1px solid #F44336;
 }
-.level-desc {
-  font-size: 9px;
-  line-height: 1.4;
-  color: #a8a8a8;
+.difficulty-badge.expert {
+  background-color: rgba(156, 39, 176, 0.2);
+  color: #E040FB;
+  border: 1px solid #E040FB;
 }
 </style>

@@ -9,6 +9,7 @@ export const useGameStore = defineStore('game', () => {
 
   // Selected level
   const selectedLevel = ref(1);
+  const unlockedLevel = ref(parseInt(localStorage.getItem('pixel_defense_unlocked_level') || '1', 10));
 
   // Gói C: Meta-Upgrades state
   const rubies = ref(parseInt(localStorage.getItem('pixel_defense_rubies') || '0', 10));
@@ -79,6 +80,7 @@ export const useGameStore = defineStore('game', () => {
   function saveToLocalStorage() {
     localStorage.setItem('pixel_defense_rubies', rubies.value.toString());
     localStorage.setItem('pixel_defense_upgrades', JSON.stringify(upgrades.value));
+    localStorage.setItem('pixel_defense_unlocked_level', unlockedLevel.value.toString());
   }
 
   // Actions
@@ -116,6 +118,10 @@ export const useGameStore = defineStore('game', () => {
           let earnedRubies = 0;
           if (gameStatus.value === 'won') {
             earnedRubies = 10 * selectedLevel.value + 5 * currentWave.value;
+            // Unlock next level
+            if (selectedLevel.value === unlockedLevel.value && unlockedLevel.value < 20) {
+              unlockedLevel.value++;
+            }
           } else {
             earnedRubies = 1 * currentWave.value;
           }
@@ -172,6 +178,7 @@ export const useGameStore = defineStore('game', () => {
     playerName,
     playerId,
     selectedLevel,
+    unlockedLevel,
     rubies,
     upgrades,
     buyUpgrade,
