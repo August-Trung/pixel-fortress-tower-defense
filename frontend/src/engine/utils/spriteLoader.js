@@ -41,6 +41,13 @@ const SPRITE_SOURCES = {
   decor_desert_stone: '/sprites/decorations/desert_stone.png',
   decor_crystal: '/sprites/decorations/crystal.png',
   decor_snow_stone: '/sprites/decorations/snow_stone.png',
+  hero_knight: '/sprites/heroes/knight.png',
+  soldier_foot: '/sprites/heroes/soldier.png',
+  enemy_boss: '/sprites/enemies/boss.png',
+  spell_meteor: '/sprites/spells/meteor.png',
+  spell_blizzard: '/sprites/spells/blizzard.png',
+  spell_reinforce: '/sprites/spells/reinforce.png',
+  icon_ruby: '/sprites/icons/ruby.png',
 };
 
 export async function loadAllSprites() {

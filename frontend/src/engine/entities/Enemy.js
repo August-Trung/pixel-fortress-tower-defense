@@ -17,6 +17,7 @@ export default class Enemy {
     this.slowTimer = 0;
     this.poisonTimer = 0;
     this.poisonDamagePerSecond = 0;
+    this.blockedBy = null;
   }
 
   update(dt) {
@@ -38,27 +39,34 @@ export default class Enemy {
       }
     }
 
-    const target = this.path[this.currentPathIndex];
-    if (!target) {
-      this.reachedEnd = true;
-      return;
-    }
+    if (this.blockedBy && this.blockedBy.alive) {
+      // Combat: deal damage to the blocker
+      this.blockedBy.takeDamage(15 * dt); // 15 damage per second
+    } else {
+      this.blockedBy = null; // Clear dead/KO blocker
 
-    const dx = target.x - this.x;
-    const dy = target.y - this.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist < 2) {
-      this.currentPathIndex++;
-      if (this.currentPathIndex >= this.path.length) {
+      const target = this.path[this.currentPathIndex];
+      if (!target) {
         this.reachedEnd = true;
         return;
       }
-    } else {
-      // Scale speed: speed * 60 * dt means config.speed is in pixels per frame (assuming 60fps base speed)
-      const moveSpeed = currentSpeed * 60 * dt;
-      this.x += (dx / dist) * Math.min(moveSpeed, dist);
-      this.y += (dy / dist) * Math.min(moveSpeed, dist);
+
+      const dx = target.x - this.x;
+      const dy = target.y - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < 2) {
+        this.currentPathIndex++;
+        if (this.currentPathIndex >= this.path.length) {
+          this.reachedEnd = true;
+          return;
+        }
+      } else {
+        // Scale speed: speed * 60 * dt
+        const moveSpeed = currentSpeed * 60 * dt;
+        this.x += (dx / dist) * Math.min(moveSpeed, dist);
+        this.y += (dy / dist) * Math.min(moveSpeed, dist);
+      }
     }
   }
 

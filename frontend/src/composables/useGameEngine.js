@@ -12,6 +12,7 @@ export function useGameEngine() {
     }
 
     engine = new GameEngine(canvas, gameStore.selectedLevel, {
+      upgrades: gameStore.upgrades,
       onStateChange: (state) => {
         gameStore.updateFromEngine(state);
       },
@@ -19,25 +20,34 @@ export function useGameEngine() {
         gameStore.gameStatus = status;
       },
       onWaveComplete: (waveNumber) => {
-        // Wave complete notification can go here
+        // Wave complete notification
       },
       onSelectTower: (tower) => {
-        // Map engine selected tower details back to UI
         if (tower) {
-          gameStore.selectedTower = {
-            id: tower.id,
-            gridX: tower.gridX,
-            gridY: tower.gridY,
-            type: tower.type,
-            name: tower.name,
-            level: tower.level,
-            damage: tower.damage,
-            range: tower.range,
-            fireRate: tower.fireRate,
-            cost: tower.cost,
-            totalInvested: tower.totalInvested,
-            sellPrice: tower.getSellPrice()
-          };
+          if (tower.type === 'obstacle') {
+            gameStore.selectedTower = {
+              type: 'obstacle',
+              gridX: tower.gridX,
+              gridY: tower.gridY,
+              cost: tower.cost,
+              name: 'Debris Rock'
+            };
+          } else {
+            gameStore.selectedTower = {
+              id: tower.id,
+              gridX: tower.gridX,
+              gridY: tower.gridY,
+              type: tower.type,
+              name: tower.name,
+              level: tower.level,
+              damage: tower.damage,
+              range: tower.range,
+              fireRate: tower.fireRate,
+              cost: tower.cost,
+              totalInvested: tower.totalInvested,
+              sellPrice: tower.getSellPrice()
+            };
+          }
         } else {
           gameStore.selectedTower = null;
         }
@@ -57,6 +67,21 @@ export function useGameEngine() {
     if (engine) {
       engine.selectTowerType(type);
       gameStore.placingTowerType = type;
+      gameStore.placingSpellType = null;
+    }
+  }
+
+  function selectSpellType(type) {
+    if (engine) {
+      engine.selectSpellType(type);
+      gameStore.placingSpellType = type;
+      gameStore.placingTowerType = null;
+    }
+  }
+
+  function clearObstacle(gridX, gridY) {
+    if (engine) {
+      engine.clearObstacle(gridX, gridY);
     }
   }
 
@@ -84,6 +109,8 @@ export function useGameEngine() {
     initEngine,
     startWave,
     selectTowerType,
+    selectSpellType,
+    clearObstacle,
     upgradeTower,
     sellTower,
     setSpeed,

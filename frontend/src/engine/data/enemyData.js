@@ -26,5 +26,12 @@ export const ENEMY_DATA = {
     hp: 800,
     speed: 0.5,
     goldDrop: 200,
+  },
+  boss: {
+    type: 'boss',
+    name: 'Stone Golem Boss',
+    hp: 2000,
+    speed: 0.4,
+    goldDrop: 400,
   }
 };

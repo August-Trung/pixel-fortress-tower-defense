@@ -260,6 +260,12 @@ export default class Renderer {
         // Smooth flying bobbing movement
         bobY = Math.sin(walkCycle) * 3;
         wobbleAngle = Math.cos(walkCycle) * 0.05;
+      } else if (enemy.type === 'boss') {
+        // Slow lumbering giant step
+        wobbleAngle = Math.sin(walkCycle * 0.5) * 0.05;
+        bobY = Math.abs(Math.sin(walkCycle * 0.5)) * -1.0;
+        scaleX = 1.0;
+        scaleY = 1.0;
       } else if (enemy.type === 'wolf') {
         // Fast runner squash/stretch wobble
         wobbleAngle = Math.sin(walkCycle * 1.5) * 0.12;
@@ -281,7 +287,20 @@ export default class Renderer {
       this.ctx.translate(0, bobY);
 
       // Draw the sprite centered at (0, 0)
-      this.drawSprite(`enemy_${enemy.type}`, -TILE_SIZE / 2, -TILE_SIZE / 2);
+      if (enemy.type === 'boss') {
+        const bossImg = this.sprites['enemy_boss'];
+        if (bossImg) {
+          this.ctx.drawImage(bossImg, -40, -85, 80, 110);
+        } else {
+          this.ctx.fillStyle = '#6A1B9A';
+          this.ctx.fillRect(-24, -24, 48, 48);
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.font = 'bold 8px monospace';
+          this.ctx.fillText("BOSS", -12, 4);
+        }
+      } else {
+        this.drawSprite(`enemy_${enemy.type}`, -TILE_SIZE / 2, -TILE_SIZE / 2);
+      }
 
       // Render blue freeze overlay if slowed (still centered)
       if (enemy.slowTimer > 0) {
@@ -770,6 +789,174 @@ export default class Renderer {
       if (name.includes(key)) return color;
     }
     return '#FF00FF';
+  }
+
+  drawObstacles(mapGrid) {
+    const img = this.sprites['decor_rock_large'];
+    for (let r = 0; r < MAP_ROWS; r++) {
+      for (let c = 0; c < MAP_COLS; c++) {
+        if (mapGrid[r][c] === 9) {
+          const x = c * TILE_SIZE;
+          const y = r * TILE_SIZE;
+          if (img) {
+            this.ctx.drawImage(img, x, y, TILE_SIZE, TILE_SIZE);
+          } else {
+            // Fallback rock box
+            this.ctx.fillStyle = '#795548';
+            this.ctx.fillRect(x + 4, y + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.font = '12px Courier';
+            this.ctx.fillText('🪨', x + 16, y + 28);
+          }
+        }
+      }
+    }
+  }
+
+  drawHero(hero, selectedHero) {
+    if (!hero) return;
+    const x = hero.x;
+    const y = hero.y;
+
+    // Draw selection circle under hero
+    if (selectedHero) {
+      this.ctx.save();
+      this.ctx.strokeStyle = '#FFEE58';
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.arc(x, y + 8, 16, 0, Math.PI * 2);
+      this.ctx.stroke();
+      this.ctx.restore();
+    }
+
+    if (!hero.alive) {
+      // Unconscious tombstone
+      this.ctx.fillStyle = '#90A4AE';
+      this.ctx.fillRect(x - 8, y - 16, 16, 24);
+      this.ctx.fillStyle = '#ffffff';
+      this.ctx.font = 'bold 8px monospace';
+      this.ctx.fillText(`KO ${hero.koTimer}s`, x - 18, y - 20);
+      return;
+    }
+
+    // Walking animation
+    let bobY = 0;
+    if (Math.abs(hero.targetX - hero.x) > 4 || Math.abs(hero.targetY - hero.y) > 4) {
+      const walkCycle = performance.now() * 0.015;
+      bobY = Math.abs(Math.sin(walkCycle)) * -3;
+    }
+
+    const img = this.sprites['hero_knight'];
+    if (img) {
+      this.ctx.drawImage(img, x - 32, y - 60 + bobY, 64, 90);
+    } else {
+      this.ctx.fillStyle = '#FFD54F';
+      this.ctx.fillRect(x - 12, y - 12 + bobY, 24, 24);
+      this.ctx.fillStyle = '#000000';
+      this.ctx.font = 'bold 8px monospace';
+      this.ctx.fillText("HERO", x - 10, y + 4 + bobY);
+    }
+
+    // Level & XP Bar below hero
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.font = 'bold 8px monospace';
+    this.ctx.shadowColor = 'black';
+    this.ctx.shadowBlur = 4;
+    this.ctx.fillText(`Lv${hero.level}`, x - 8, y + 24);
+    this.ctx.shadowBlur = 0;
+
+    // HP Bar above hero
+    const barW = 28;
+    const barH = 3;
+    const bx = x - barW / 2;
+    const by = y - 68 + bobY;
+    this.ctx.fillStyle = '#FF1744';
+    this.ctx.fillRect(bx, by, barW, barH);
+    this.ctx.fillStyle = '#00E676';
+    this.ctx.fillRect(bx, by, barW * (hero.hp / hero.maxHp), barH);
+  }
+
+  drawSoldiers(soldiers) {
+    const img = this.sprites['soldier_foot'];
+    for (const soldier of soldiers) {
+      if (!soldier.alive) continue;
+      const x = soldier.x;
+      const y = soldier.y;
+      const bobY = Math.abs(Math.sin(performance.now() * 0.008)) * -1.5;
+
+      if (img) {
+        this.ctx.drawImage(img, x - 24, y - 24 + bobY, 48, 48);
+      } else {
+        this.ctx.fillStyle = '#29B6F6';
+        this.ctx.fillRect(x - 8, y - 8 + bobY, 16, 16);
+      }
+
+      // HP Bar above soldier
+      const barW = 16;
+      const barH = 2;
+      const bx = x - barW / 2;
+      const by = y - 18 + bobY;
+      this.ctx.fillStyle = '#FF1744';
+      this.ctx.fillRect(bx, by, barW, barH);
+      this.ctx.fillStyle = '#00E676';
+      this.ctx.fillRect(bx, by, barW * (soldier.hp / soldier.maxHp), barH);
+    }
+  }
+
+  drawSpellPreview(spellType, mouseX, mouseY) {
+    if (!spellType || mouseX === undefined || mouseY === undefined) return;
+    this.ctx.save();
+    this.ctx.lineWidth = 2;
+    
+    let radius = 80;
+    if (spellType === 'meteor') {
+      this.ctx.strokeStyle = 'rgba(255, 87, 34, 0.8)';
+      this.ctx.fillStyle = 'rgba(255, 87, 34, 0.2)';
+      radius = 80;
+    } else if (spellType === 'blizzard') {
+      this.ctx.strokeStyle = 'rgba(0, 229, 255, 0.8)';
+      this.ctx.fillStyle = 'rgba(0, 229, 255, 0.2)';
+      radius = 100;
+    } else if (spellType === 'reinforce') {
+      this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      radius = 24;
+    }
+
+    this.ctx.beginPath();
+    this.ctx.arc(mouseX, mouseY, radius, 0, Math.PI * 2);
+    this.ctx.stroke();
+    this.ctx.fill();
+    this.ctx.restore();
+  }
+
+  drawWeather(weather) {
+    if (weather === 'clear') return;
+    this.ctx.save();
+    
+    const time = performance.now() * 0.05;
+    if (weather === 'rain') {
+      this.ctx.strokeStyle = 'rgba(129, 212, 250, 0.4)';
+      this.ctx.lineWidth = 1.5;
+      for (let i = 0; i < 40; i++) {
+        const x = (i * 32 + time * 4) % this.ctx.canvas.width;
+        const y = (i * 24 + time * 12) % this.ctx.canvas.height;
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(x - 5, y + 15);
+        this.ctx.stroke();
+      }
+    } else if (weather === 'snow') {
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+      for (let i = 0; i < 30; i++) {
+        const x = (i * 44 + Math.sin(time * 0.05 + i) * 15) % this.ctx.canvas.width;
+        const y = (i * 32 + time * 1.5) % this.ctx.canvas.height;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 2 + (i % 2), 0, Math.PI * 2);
+        this.ctx.fill();
+      }
+    }
+    this.ctx.restore();
   }
 }
 

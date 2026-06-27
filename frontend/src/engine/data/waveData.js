@@ -69,5 +69,20 @@ export const WAVE_DATA = [
       { type: 'wolf', count: 10 },
       { type: 'dragon', count: 1 }
     ]
+  },
+  {
+    wave: 11,
+    groups: [
+      { type: 'orc', count: 10 },
+      { type: 'dragon', count: 2 }
+    ]
+  },
+  {
+    wave: 12,
+    groups: [
+      { type: 'orc', count: 8 },
+      { type: 'dragon', count: 2 },
+      { type: 'boss', count: 1 }
+    ]
   }
 ];
