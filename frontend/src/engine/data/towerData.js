@@ -4,7 +4,7 @@ export const TOWER_DATA = {
     name: 'Archer Tower',
     damage: 10,
     range: 150,
-    fireRate: 1.0, // seconds
+    fireRate: 1.0,
     cost: 50,
   },
   mage: {
@@ -12,7 +12,7 @@ export const TOWER_DATA = {
     name: 'Mage Tower',
     damage: 25,
     range: 120,
-    fireRate: 2.0, // seconds
+    fireRate: 2.0,
     cost: 100,
   },
   ice: {
@@ -20,7 +20,31 @@ export const TOWER_DATA = {
     name: 'Ice Tower',
     damage: 5,
     range: 130,
-    fireRate: 1.5, // seconds
+    fireRate: 1.5,
     cost: 75,
+  },
+  cannon: {
+    type: 'cannon',
+    name: 'Cannon Tower',
+    damage: 45,
+    range: 130,
+    fireRate: 2.2,
+    cost: 150,
+  },
+  tesla: {
+    type: 'tesla',
+    name: 'Tesla Tower',
+    damage: 15,
+    range: 110,
+    fireRate: 1.2,
+    cost: 120,
+  },
+  poison: {
+    type: 'poison',
+    name: 'Venom Spitter',
+    damage: 6,
+    range: 140,
+    fireRate: 1.0,
+    cost: 85,
   }
 };

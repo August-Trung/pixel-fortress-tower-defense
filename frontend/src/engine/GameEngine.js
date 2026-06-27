@@ -123,10 +123,14 @@ export default class GameEngine {
     for (let i = this.bullets.length - 1; i >= 0; i--) {
       const bullet = this.bullets[i];
       const wasActive = bullet.active;
-      bullet.update(dt);
+      bullet.update(dt, this.enemies);
       if (!bullet.active) {
         if (wasActive && bullet.target) {
-          const color = bullet.type === 'ice' ? '#00E5FF' : bullet.type === 'mage' ? '#FF5722' : '#FFD54F';
+          const color = bullet.type === 'ice' ? '#00E5FF' : 
+                        bullet.type === 'mage' ? '#FF5722' : 
+                        bullet.type === 'cannon' ? '#757575' : 
+                        bullet.type === 'tesla' ? '#FFF176' : 
+                        bullet.type === 'poison' ? '#4CAF50' : '#FFD54F';
           this.vfxManager.spawnSparks(bullet.x, bullet.y, color, 8);
         }
         this.bullets.splice(i, 1);

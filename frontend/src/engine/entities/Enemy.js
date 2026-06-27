@@ -15,15 +15,27 @@ export default class Enemy {
     this.alive = true;
     this.reachedEnd = false;
     this.slowTimer = 0;
+    this.poisonTimer = 0;
+    this.poisonDamagePerSecond = 0;
   }
 
   update(dt) {
     if (!this.alive || this.reachedEnd) return;
 
+    // Update slow effect
     let currentSpeed = this.baseSpeed;
     if (this.slowTimer > 0) {
       currentSpeed *= 0.7; // ICE_SLOW_FACTOR (0.7)
       this.slowTimer -= dt;
+    }
+
+    // Update poison DoT
+    if (this.poisonTimer > 0) {
+      this.takeDamage(this.poisonDamagePerSecond * dt);
+      this.poisonTimer -= dt;
+      if (this.poisonTimer <= 0) {
+        this.poisonDamagePerSecond = 0;
+      }
     }
 
     const target = this.path[this.currentPathIndex];
@@ -61,5 +73,11 @@ export default class Enemy {
 
   applySlow(duration) {
     this.slowTimer = duration;
+  }
+
+  applyPoison(duration, damagePerSecond) {
+    this.poisonTimer = duration;
+    // Set DoT damage. If already poisoned, keep the highest damage rate
+    this.poisonDamagePerSecond = Math.max(this.poisonDamagePerSecond, damagePerSecond);
   }
 }

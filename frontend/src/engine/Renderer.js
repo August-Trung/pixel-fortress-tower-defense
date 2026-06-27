@@ -417,6 +417,12 @@ export default class Renderer {
       this.drawProceduralMageTower(x, y);
     } else if (name.includes('tower_ice')) {
       this.drawProceduralIceTower(x, y);
+    } else if (name.includes('tower_cannon')) {
+      this.drawProceduralCannonTower(x, y);
+    } else if (name.includes('tower_tesla')) {
+      this.drawProceduralTeslaTower(x, y);
+    } else if (name.includes('tower_poison')) {
+      this.drawProceduralVenomTower(x, y);
     } else if (name.includes('enemy_skeleton')) {
       this.drawProceduralSkeleton(x, y);
     } else if (name.includes('enemy_wolf')) {
@@ -689,10 +695,58 @@ export default class Renderer {
     this.ctx.fillRect(x + 34, y + 16, 2, 6);
   }
 
+  drawProceduralCannonTower(x, y) {
+    // Dark steel heavy fort
+    this.ctx.fillStyle = '#424242';
+    this.ctx.fillRect(x + 6, y + 10, 36, 38);
+    this.ctx.fillStyle = '#212121';
+    this.ctx.fillRect(x + 4, y + 6, 40, 4); // reinforced steel band
+
+    // Cannon sign
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.font = '12px Courier';
+    this.ctx.fillText('💣', x + 16, y + 26);
+  }
+
+  drawProceduralTeslaTower(x, y) {
+    // Copper rod generator
+    this.ctx.fillStyle = '#795548';
+    this.ctx.fillRect(x + 16, y + 16, 16, 32);
+
+    // Glowing coil rings
+    this.ctx.fillStyle = '#FFD54F';
+    this.ctx.fillRect(x + 12, y + 20, 24, 4);
+    this.ctx.fillRect(x + 10, y + 10, 28, 4);
+
+    // Plasma lightning orb on top
+    this.ctx.beginPath();
+    this.ctx.arc(x + 24, y + 6, 6, 0, Math.PI * 2);
+    this.ctx.fillStyle = '#FFF59D';
+    this.ctx.shadowColor = '#FFEE58';
+    this.ctx.shadowBlur = 8;
+    this.ctx.fill();
+    this.ctx.shadowBlur = 0; // reset
+    this.ctx.closePath();
+  }
+
+  drawProceduralVenomTower(x, y) {
+    // Toxic green glass container
+    this.ctx.fillStyle = '#1B5E20';
+    this.ctx.fillRect(x + 10, y + 14, 28, 34);
+
+    // Poison sign
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.font = '12px Courier';
+    this.ctx.fillText('🧪', x + 16, y + 30);
+  }
+
   getBulletColor(type) {
     if (type === 'archer') return '#8B4513';
     if (type === 'mage') return '#FF9800';
     if (type === 'ice') return '#00E5FF';
+    if (type === 'cannon') return '#555555';
+    if (type === 'tesla') return '#FFEE58';
+    if (type === 'poison') return '#4CAF50';
     return '#FFFFFF';
   }
 
@@ -704,6 +758,9 @@ export default class Renderer {
       tower_archer: '#8D6E63',
       tower_mage: '#7E57C2',
       tower_ice: '#29B6F6',
+      tower_cannon: '#424242',
+      tower_tesla: '#FFD54F',
+      tower_poison: '#2E7D32',
       enemy_skeleton: '#ECEFF1',
       enemy_wolf: '#757575',
       enemy_orc: '#558B2F',

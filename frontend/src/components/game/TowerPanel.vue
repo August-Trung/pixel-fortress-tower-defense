@@ -46,6 +46,9 @@ function getEmoji(type) {
   if (type === 'archer') return '🏹';
   if (type === 'mage') return '🔮';
   if (type === 'ice') return '❄️';
+  if (type === 'cannon') return '💣';
+  if (type === 'tesla') return '⚡';
+  if (type === 'poison') return '🧪';
   return '🏰';
 }
 
